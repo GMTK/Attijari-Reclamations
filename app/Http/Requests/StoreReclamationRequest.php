@@ -29,12 +29,10 @@ class StoreReclamationRequest extends FormRequest
                 'string',
                 'required',
             ],
-            'agence'     => [
-                'string',
+            'agence_id'     => [
                 'required',
             ],
-            'categorie'     => [
-                'string',
+            'categorie_id'     => [
                 'required',
             ],
             'etat'     => [
@@ -42,8 +40,7 @@ class StoreReclamationRequest extends FormRequest
                 'required',
             ],
 
-            'niveauurgence'     => [
-                'string',
+            'NivUrgence_id'     => [
                 'required',
             ],
             'motif'     => [
@@ -51,6 +48,47 @@ class StoreReclamationRequest extends FormRequest
                 'required',
             ],
             'montant'     => [
+                'string',
+                'required',
+            ],
+            'devise_id'     => [
+                'required',
+            ],
+            'monetique_id'     => [
+                'required',
+            ],
+            'canal_id'     => [
+                'required',
+            ],
+            'canalSecondaire_id'     => [
+                'required',
+            ],
+            'typeClient_id'     => [
+                'required',
+            ],
+            'marche'     => [
+                'string',
+                'required',
+            ],
+            'compte'     => [
+                'string',
+                'required',
+            ],
+            'ReclamationRelance'     => [
+                'string',
+                'required',
+            ],
+            'NivService_id'     => [
+                'required',
+            ],
+            'familleReclamation_id'     => [
+                'required',
+            ],
+            'ReclamationFonde'     => [
+                'string',
+                'required',
+            ],
+            'commentaire'     => [
                 'string',
                 'required',
             ],

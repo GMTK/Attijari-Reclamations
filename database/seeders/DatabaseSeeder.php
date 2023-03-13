@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Type_client;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,6 +20,16 @@ class DatabaseSeeder extends Seeder
             PermissionRoleTableSeeder::class,
             UsersTableSeeder::class,
             RoleUserTableSeeder::class,
+            NivServicesTableSeeder::class,
+            NivUrgsTableSeeder::class,
+            DevisesTableSeeder::class,
+            MonetiquesTableSeeder::class,
+            CategoriesTableSeeder::class,
+            CanalsTableSeeder::class,
+            CanalSecondairesTableSeeder::class,
+            AgencesTableSeeder::class,
+            TypeClientsTableSeeder::class,
+            FamillesTableSeeder::class,
         ]);
     }
 }

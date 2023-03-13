@@ -52,21 +52,6 @@ onUnmounted(() => {
                 iconOnly
                 variant="secondary"
                 type="button"
-                v-slot="{ iconSizeClasses }"
-                class="hidden md:inline-flex"
-                srText="Toggle dark mode"
-            >
-                <BellIcon
-                    aria-hidden="true"
-                    :class="iconSizeClasses"
-                />
-
-            </Button>
-
-            <Button
-                iconOnly
-                variant="secondary"
-                type="button"
                 @click="toggleDarkMode"
                 v-slot="{ iconSizeClasses }"
                 class="hidden md:inline-flex"

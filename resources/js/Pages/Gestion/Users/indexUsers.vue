@@ -9,13 +9,12 @@ import InputIconWrapper from '@/Components/InputIconWrapper.vue'
 import Input from '@/Components/Input.vue'
 import Label from '@/Components/Label.vue'
 import InputError from "@/Components/InputError.vue";
-
-
 </script>
 
 <script>
 
 import Multiselect from "vue-multiselect";
+import Swal from "sweetalert2";
 
 export default {
 
@@ -59,17 +58,88 @@ export default {
             selected_roles: [],
             selected_permissions: [],
             options: this.roles.map(item => item.title),
-            option_permissions: []
+            option_permissions: [],
+
+            currentPage: 1,
+            perPage: 5,
+            search: '',
+            sortColumn: 'email',
+            sortDirection: 'asc'
+
         }
     },
 
-    props: ['users_list', 'roles'],
+    props: ['links','users_list', 'roles'],
 
     created() {
-        console.log(this.option_permissions)
+        console.log(this.users_list.data)
     },
 
+    computed: {
+
+        filteredData() {
+            this.currentPage = 1
+            return this.users_list.filter((item) => {
+                    return item[this.sortColumn].toString().toLowerCase().includes(this.search.toLowerCase());
+            });
+        },
+        sortedData() {
+            const data = this.filteredData.slice()
+            if (this.sortDirection === 'asc') {
+                data.sort((a, b) => {
+                    if (parseInt(a[this.sortColumn])) {
+                        return a[this.sortColumn] - b[this.sortColumn]
+                    } else {
+                        return a[this.sortColumn].localeCompare(b[this.sortColumn])
+                    }
+                })
+            } else {
+                data.sort((a, b) => {
+                    if (parseInt(a[this.sortColumn])) {
+                        return b[this.sortColumn] - a[this.sortColumn]
+                    } else {
+                        return b[this.sortColumn].localeCompare(a[this.sortColumn])
+                    }
+                })
+            }
+            return data
+        },
+        paginatedData() {
+            const startIndex = (this.currentPage - 1) * this.perPage;
+            const endIndex = startIndex + this.perPage;
+            return this.sortedData.slice(startIndex, endIndex);
+        },
+
+        totalPages() {
+            return Math.ceil(this.sortedData.length / this.perPage);
+        },
+    },
+
+
     methods: {
+
+        setPage(pageNumber) {
+            this.currentPage = pageNumber;
+        },
+
+        previousPage() {
+            if(this.currentPage > 1)
+                --this.currentPage
+        },
+
+        nextPage() {
+            if(this.currentPage < this.totalPages)
+                ++this.currentPage
+        },
+
+        sort(column) {
+            if (column === this.sortColumn) {
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+            } else {
+                this.sortColumn = column
+                this.sortDirection = 'asc'
+            }
+        },
 
         showPermissions() {
 
@@ -160,10 +230,24 @@ export default {
             this.confirmingUserDeletion = true
         },
 
+        swalAlert(text) {
+            Swal.fire({
+                title: 'Succés',
+                text: text,
+                background: 'rgba(255, 255, 255, 1)',
+                icon: 'success',
+                backdrop: 'rgba(107, 114, 128, 0.75)',
+                confirmButtonColor: '#3b81f6'
+            })
+        },
+
         submit() {
             this.form.post(route('users.store'), {
                 preserveScroll: true,
-                onSuccess: () => this.closeModal(),
+                onSuccess: () => {
+                    this.closeModal()
+                    this.swalAlert('Nouveau Utilisateur a été Créer')
+                },
                 onFinish: () => this.form.reset('password', 'password_confirmation'),
             })
 
@@ -173,7 +257,10 @@ export default {
 
             this.form.delete(route("users.destroy", user_id), {
                 preserveScroll: true,
-                onSuccess: () => this.closeModal(),
+                onSuccess: () => {
+                    this.closeModal()
+                    this.swalAlert('Utilisateur a été Supprimer')
+                },
             })
 
         },
@@ -181,7 +268,10 @@ export default {
         updateUser(user_id) {
             this.form.put(route("users.update", user_id), {
                 preserveScroll: true,
-                onSuccess: () => this.closeModal(),
+                onSuccess: () => {
+                    this.closeModal()
+                    this.swalAlert('Utilisateur a été modifié')
+                },
             })
         },
 
@@ -212,6 +302,7 @@ export default {
                 preserveScroll: true,
                 onSuccess: () => {
                     this.closeModal()
+                    this.swalAlert('Utilisateurs a été Attribuer ses Roles et ses Habilitations')
                 },
             })
         }
@@ -542,10 +633,32 @@ export default {
 
         <div>
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-                <div class="block mb-4 ">
+                <div class="block">
                     <Button variant="success" @click="confirmUserAdding" >
                         Ajouter
                     </Button>
+                    <div class="flex justify-end">
+                        <div class="flex justify-end mb-4">
+                            <select class="mr-3 border border-solid border-neutral-300 bg-transparent bg-clip-padding pr-10 py-1.5 text-base font-normal text-neutral-700 outline-none transition duration-300 ease-in-out focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:text-neutral-200 dark:placeholder:text-neutral-200" id="sort" v-model="sortColumn">
+                                <option value="id">ID</option>
+                                <option value="name">Name</option>
+                                <option value="email">EMAIL</option>
+                            </select>
+                            <select class="mr-3 border border-solid border-neutral-300 bg-transparent bg-clip-padding pr-10 py-1.5 text-base font-normal text-neutral-700 outline-none transition duration-300 ease-in-out focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:text-neutral-200 dark:placeholder:text-neutral-200" id="direction" v-model="sortDirection">
+                                <option value="asc">CROISSANT</option>
+                                <option value="desc">DECROISSANT</option>
+                            </select>
+                            <div class="relative flex w-full flex-wrap items-stretch">
+                                <input
+                                    type="search"
+                                    v-model="search"
+                                    class="relative m-0 -mr-px block w-[1%] min-w-0 flex-auto rounded-l border border-solid border-neutral-300 bg-transparent bg-clip-padding px-3 py-1.5 text-base font-normal text-neutral-700 outline-none transition duration-300 ease-in-out focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:text-neutral-200 dark:placeholder:text-neutral-200"
+                                    placeholder="Search"
+                                    aria-label="Search"
+                                    aria-describedby="button-addon1" />
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
                 <div class="flex flex-col ">
@@ -575,7 +688,7 @@ export default {
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200 dark:divide-gray-500 ">
 
-                                    <tr v-for="user in this.users_list">
+                                    <tr v-for="(user, index) in paginatedData" :key="index">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:border-gray-600 dark:bg-dark-eval-1 dark:text-gray-300 dark:focus:ring-offset-dark-eval-1">
                                             {{ user.id }}
                                         </td>
@@ -620,6 +733,24 @@ export default {
                                     </tr>
                                     </tbody>
                                 </table>
+                                <div class="flex flex-col items-center my-5">
+                                    <div class="flex text-gray-700">
+                                        <div class="h-10 w-10 mr-1 flex justify-center items-center rounded-full bg-gray-200 cursor-pointer" @click="previousPage()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left w-6 h-6">
+                                                <polyline points="15 18 9 12 15 6"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="flex h-10 font-medium rounded-full bg-gray-200" v-for="pageNumber in totalPages" :key="pageNumber" @click="setPage(pageNumber)">
+                                            <div v-if="pageNumber === this.currentPage" class="w-10 md:flex justify-center items-center hidden  cursor-pointer leading-5 transition duration-150 ease-in  rounded-full bg-teal-600 text-white ">{{ pageNumber }}</div>
+                                            <div v-else class="w-10 md:flex justify-center items-center hidden  cursor-pointer leading-5 transition duration-150 ease-in  rounded-full  ">{{ pageNumber }}</div>
+                                        </div>
+                                        <div class="h-10 w-10 ml-1 flex justify-center items-center rounded-full bg-gray-200 cursor-pointer" @click="nextPage()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right w-6 h-6">
+                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

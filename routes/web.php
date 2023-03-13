@@ -21,13 +21,11 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DashBoardController::class, 'index'])
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/Saisir', function () {
-    return Inertia::render('Saisir');
-})->middleware(['auth', 'verified'])->name('saisir');
+Route::get('/Saisir', [\App\Http\Controllers\ReclamationController::class, 'index'])
+    ->middleware(['auth', 'verified'])->name('saisir');
 
 
 Route::middleware('auth')->group(function () {
@@ -118,6 +116,11 @@ Route::put('/roles/{roles}/update', [\App\Http\Controllers\RoleController::class
 Route::delete('/roles/{roles}/destroy', [\App\Http\Controllers\RoleController::class, 'destroy'])
     ->name('roles.destroy');
 
+
+//export
+
+Route::get('/reclamations/export', [\App\Http\Controllers\ReclamationController::class, 'export']
+)->middleware(['auth', 'verified'])->name('reclamations.export');
 
 
 require __DIR__ . '/auth.php';

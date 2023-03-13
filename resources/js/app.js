@@ -7,7 +7,11 @@ import { InertiaProgress } from '@inertiajs/progress'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m'
 
+
 import VueMultiselect from "vue-multiselect";
+import Chart from "chart.js";
+import VuePaginate from 'vuejs-paginate';
+import { TailwindPagination } from 'laravel-vue-pagination';
 
 const appName =
     window.document.getElementsByTagName('title')[0]?.innerText || 'K UI'
@@ -24,6 +28,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue, Ziggy)
             .component('VueMultiselect', VueMultiselect)
+            .component('TailwindPagination', TailwindPagination)
             .mount(el)
     },
 })
